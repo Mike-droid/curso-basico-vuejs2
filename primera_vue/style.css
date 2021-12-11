@@ -1,0 +1,23 @@
+#app {
+  height: 95vh;
+}
+
+img {
+  width: 100px;
+}
+
+.red {
+  color: red;
+}
+
+.green {
+  color: green;
+}
+
+.orange {
+  color: orange;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
