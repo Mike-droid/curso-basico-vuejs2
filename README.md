@@ -720,3 +720,492 @@ new Vue({
 });
 
 ```
+
+[Miniproyecto realizado con Vue.js en Codepen](https://codepen.io/mike-droid/pen/zYEKLgj)
+
+## Sistema de componentes
+
+### Sistema de componentes con Vue.js
+
+Tenemos un componente principal 'root' y de ahí se crean los demás componentes.
+
+La idea de los componentes es crear código HTML reutilizable y este código está personalizado.
+
+### Crear componentes custom
+
+Podemos crear componentes con 'Vue.component':
+
+```html
+<div id="app">
+  <h1>{{title}}</h1>
+  <counter></counter>
+</div>
+```
+
+```javascript
+Vue.component('counter', {
+  data() {
+    return {
+      counter: 0
+    }
+  },
+  methods: {
+    increment() {
+      this.counter += 1;
+    }
+  },
+  template: `
+      <div>
+        <button v-on:click="increment">Click me!</button>
+        <span>{{counter}}</span>
+      </div>
+    `
+})
+
+new Vue({
+  el: "#app",
+  data(){
+    return {
+      title: "Hola"
+    }
+  }
+})
+```
+
+### Comunicación entre Componentes: propiedades
+
+En el componente de Vue podemos poner como nombre 'coinDetail' y en el HTML usar el nombre 'coin-detail'.
+
+El nombre de 'coin' dentro de props viene del componente padre, en el objeto 'btc'.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Primera Vue</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div
+    id="app"
+    v-bind:style="{ background: '#' + color }">
+
+    <coin-detail
+      v-bind:coin="btc"
+    >
+    </coin-detail>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+```
+
+```javascript
+Vue.component('coinDetail', {
+  props: ['coin'], //*Pertenecen al componente 'padre'
+  data() {
+    return {
+      showPrices: false,
+      value: 0,
+    }
+  },
+  methods: {
+    toggleShowPrices() {
+      this.showPrices = !this.showPrices
+    }
+  },
+  computed: {
+    title () {
+      return `${this.coin.name} - ${this.coin.symbol}`
+    },
+
+    convertedValue () {
+      if(!this.value){
+        return 0
+      }
+      return this.value / this.coin.price
+    }
+  },
+  template: `
+    <div>
+      <img
+        v-on:mouseover="toggleShowPrices"
+        v-on:mouseout="toggleShowPrices"
+        v-bind:src="coin.img"
+        v-bind:alt="coin.name"
+      >
+
+      <h1
+        v-bind:class="coin.changePercent > 0 ? 'green' : 'red'">
+        {{ title }}
+        <span v-if="coin.changePercent > 0">🤑</span>
+        <span v-else>🤯</span>
+        <button v-on:click="toggleShowPrices">
+          {{ showPrices? '🙈' : '🐵' }}
+        </button>
+      </h1>
+
+      <input type="number" v-model="value">
+      <span>{{ convertedValue }}</span>
+
+      <ul v-show="showPrices">
+        <li
+          class="uppercase"
+          v-bind:class="{
+            green: p.value > coin.price,
+            orange: p.value === coin.price,
+            red: p.value < coin.price,
+          }"
+          v-for="(p, index) in coin.pricesWithDays"
+          v-bind:key="p.day">
+          {{ index }} - {{ p.day }} - {{ p.value }}
+        </li>
+      </ul>
+    </div>
+  `
+})
+
+new Vue({
+  el: '#app',
+
+  data() {
+    return {
+      btc: {
+        name: 'Bitcoin',
+        symbol: 'BTC',
+        img: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
+        changePercent: 10,
+        price: 8400,
+        pricesWithDays: [
+          { day: 'Lunes', value: 8400 },
+          { day: 'Martes', value: 7900 },
+          { day: 'Miercoles', value: 8200 },
+          { day: 'Jueves', value: 9000 },
+          { day: 'Viernes', value: 9400 },
+          { day: 'Sabado', value: 10000 },
+          { day: 'Domingo', value: 10200 },
+        ],
+      },
+      color: 'f4f4f4',
+    }
+  },
+
+  /* methods: {
+    toggleShowPrices() {
+      this.showPrices = !this.showPrices;
+
+      this.color = this.color.split('').reverse().join('');
+    }
+  } */
+});
+```
+
+### Comunicación entre Componentes: eventos
+
+Las propiedades que pertenecen al componente padre nunca deben ser actuliazadas por el componete hijo. El hijo debe notificar al padre con eventos.
+
+Podemos decir que la comunicación de padre a hijo es a través de propiedades y de hijo a padre es a través de eventos.
+
+[Eventos personalizados con $emit](https://es.vuejs.org/v2/guide/components-custom-events.html)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Primera Vue</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div
+    id="app"
+    v-bind:style="{ background: '#' + color }">
+
+    <coin-detail
+      v-on:change-color="updateColor"
+      v-bind:coin="btc"
+    >
+    </coin-detail>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+```
+
+```javascript
+Vue.component('coinDetail', {
+  props: ['coin'], //*Pertenecen al componente 'padre'
+  data() {
+    return {
+      showPrices: false,
+      value: 0,
+    }
+  },
+  methods: {
+    toggleShowPrices() {
+      this.showPrices = !this.showPrices
+
+      this.$emit('change-color',
+      this.showPrices ? 'FF96C8' : '3D3D3D') //*Segundo parametro es el color que tiene que utilizar el componente padre
+    }
+  },
+  computed: {
+    title () {
+      return `${this.coin.name} - ${this.coin.symbol}`
+    },
+
+    convertedValue () {
+      if(!this.value){
+        return 0
+      }
+      return this.value / this.coin.price
+    }
+  },
+  template: `
+    <div>
+      <img
+        v-on:mouseover="toggleShowPrices"
+        v-on:mouseout="toggleShowPrices"
+        v-bind:src="coin.img"
+        v-bind:alt="coin.name"
+      >
+
+      <h1
+        v-bind:class="coin.changePercent > 0 ? 'green' : 'red'">
+        {{ title }}
+        <span v-if="coin.changePercent > 0">🤑</span>
+        <span v-else>🤯</span>
+        <button v-on:click="toggleShowPrices">
+          {{ showPrices? '🙈' : '🐵' }}
+        </button>
+      </h1>
+
+      <input type="number" v-model="value">
+      <span>{{ convertedValue }}</span>
+
+      <ul v-show="showPrices">
+        <li
+          class="uppercase"
+          v-bind:class="{
+            green: p.value > coin.price,
+            orange: p.value === coin.price,
+            red: p.value < coin.price,
+          }"
+          v-for="(p, index) in coin.pricesWithDays"
+          v-bind:key="p.day">
+          {{ index }} - {{ p.day }} - {{ p.value }}
+        </li>
+      </ul>
+    </div>
+  `
+})
+
+new Vue({
+  el: '#app',
+
+  data() {
+    return {
+      btc: {
+        name: 'Bitcoin',
+        symbol: 'BTC',
+        img: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
+        changePercent: 10,
+        price: 8400,
+        pricesWithDays: [
+          { day: 'Lunes', value: 8400 },
+          { day: 'Martes', value: 7900 },
+          { day: 'Miercoles', value: 8200 },
+          { day: 'Jueves', value: 9000 },
+          { day: 'Viernes', value: 9400 },
+          { day: 'Sabado', value: 10000 },
+          { day: 'Domingo', value: 10200 },
+        ],
+      },
+      color: 'f4f4f4',
+    }
+  },
+
+  methods: {
+    updateColor(color) {
+      this.color = color || this.color.split('').reverse().join('');
+    }
+  }
+});
+
+```
+
+### Slots
+
+Los slots son una API de distribución de contenido que permite que los componentes padres le inyecten HTML a los componentes hijos.
+
+Podemos usar cualquier HTML válido dentro de los slots.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Primera Vue</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div
+    id="app"
+    v-bind:style="{ background: '#' + color }">
+
+    <coin-detail
+      v-on:change-color="updateColor"
+      v-bind:coin="btc"
+      >
+      <template v-slot:text>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus ipsam, rem voluptas reprehenderit sapiente eveniet adipisci laudantium illo eum, voluptates corporis eos. Vel neque est quos dignissimos autem pariatur saepe?
+        </p>
+      </template>
+      <template v-slot:link>
+        <a href="#">Link!</a>
+      </template>
+    </coin-detail>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+```
+
+```javascript
+Vue.component('coinDetail', {
+  props: ['coin'], //*Pertenecen al componente 'padre'
+  data() {
+    return {
+      showPrices: false,
+      value: 0,
+    }
+  },
+  methods: {
+    toggleShowPrices() {
+      this.showPrices = !this.showPrices
+
+      this.$emit('change-color',
+      this.showPrices ? 'FF96C8' : '3D3D3D') //*Segundo parametro es el color que tiene que utilizar el componente padre
+    }
+  },
+  computed: {
+    title () {
+      return `${this.coin.name} - ${this.coin.symbol}`
+    },
+
+    convertedValue () {
+      if(!this.value){
+        return 0
+      }
+      return this.value / this.coin.price
+    }
+  },
+  template: `
+    <div>
+      <img
+        v-on:mouseover="toggleShowPrices"
+        v-on:mouseout="toggleShowPrices"
+        v-bind:src="coin.img"
+        v-bind:alt="coin.name"
+      >
+
+      <h1
+        v-bind:class="coin.changePercent > 0 ? 'green' : 'red'">
+        {{ title }}
+        <span v-if="coin.changePercent > 0">🤑</span>
+        <span v-else>🤯</span>
+        <button v-on:click="toggleShowPrices">
+          {{ showPrices? '🙈' : '🐵' }}
+        </button>
+      </h1>
+
+      <input type="number" v-model="value">
+      <span>{{ convertedValue }}</span>
+
+      <slot name="text"></slot>
+      <slot name="link"></slot>
+
+      <ul v-show="showPrices">
+        <li
+          class="uppercase"
+          v-bind:class="{
+            green: p.value > coin.price,
+            orange: p.value === coin.price,
+            red: p.value < coin.price,
+          }"
+          v-for="(p, index) in coin.pricesWithDays"
+          v-bind:key="p.day">
+          {{ index }} - {{ p.day }} - {{ p.value }}
+        </li>
+      </ul>
+    </div>
+  `
+})
+
+new Vue({
+  el: '#app',
+
+  data() {
+    return {
+      btc: {
+        name: 'Bitcoin',
+        symbol: 'BTC',
+        img: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
+        changePercent: 10,
+        price: 8400,
+        pricesWithDays: [
+          { day: 'Lunes', value: 8400 },
+          { day: 'Martes', value: 7900 },
+          { day: 'Miercoles', value: 8200 },
+          { day: 'Jueves', value: 9000 },
+          { day: 'Viernes', value: 9400 },
+          { day: 'Sabado', value: 10000 },
+          { day: 'Domingo', value: 10200 },
+        ],
+      },
+      color: 'f4f4f4',
+    }
+  },
+
+  methods: {
+    updateColor(color) {
+      this.color = color || this.color.split('').reverse().join('');
+    }
+  }
+});
+
+```
+
+### Ciclo de Vida y Hooks
+
+Podemos manejar los ciclos de vida con funciones.
+
+[Hooks del Ciclo de vida de la instancia](https://es.vuejs.org/v2/guide/instance.html#Hooks-del-Ciclo-de-vida-de-la-Instancia)
+
+```javascript
+created() {
+    console.log('Componente creado')
+  },
+
+  mounted() {
+    console.log('Componente montado')
+  },
+```
+
+### Repaso
+
+[Vue Mastery](https://www.vuemastery.com/)

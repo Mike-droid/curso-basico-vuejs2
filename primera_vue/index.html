@@ -12,38 +12,19 @@
     id="app"
     v-bind:style="{ background: '#' + color }">
 
-    <img
-      v-on:mouseover="toggleShowPrices"
-      v-on:mouseout="toggleShowPrices"
-      v-bind:src="img"
-      v-bind:alt="Bitcoin"
-    >
-    <h1
-      v-bind:class="changePercent > 0 ? 'green' : 'red'">
-      {{ title }}
-      <span v-if="changePercent > 0">🤑</span>
-      <span v-else>🤯</span>
-      <button v-on:click="toggleShowPrices">
-        {{ showPrices? '🙈' : '🐵' }}
-      </button>
-    </h1>
-
-    <input type="number" v-model="value">
-    <span>{{ convertedValue }}</span>
-
-    <ul v-show="showPrices">
-      <li
-        class="uppercase"
-        v-bind:class="{
-          green: p.value > price,
-          orange: p.value === price,
-          red: p.value < price,
-        }"
-        v-for="(p, index) in pricesWithDays"
-        v-bind:key="p.day">
-        {{index}} - {{ p.day }} - {{ p.value }}
-      </li>
-    </ul>
+    <coin-detail
+      v-on:change-color="updateColor"
+      v-bind:coin="btc"
+      >
+      <template v-slot:text>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus ipsam, rem voluptas reprehenderit sapiente eveniet adipisci laudantium illo eum, voluptates corporis eos. Vel neque est quos dignissimos autem pariatur saepe?
+        </p>
+      </template>
+      <template v-slot:link>
+        <a href="#">Link!</a>
+      </template>
+    </coin-detail>
 
   </div>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
