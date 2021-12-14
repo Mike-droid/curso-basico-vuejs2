@@ -1209,3 +1209,18 @@ created() {
 ### Repaso
 
 [Vue Mastery](https://www.vuemastery.com/)
+
+## Ambiente de desarrollo
+
+### VS Code + Vetur / Chrome / Firefox + Dev Tools
+
+### Qué es, cómo usarlo y aplicaciones profesionales con el CLI
+
+Instalamos `npm install -g @vue/cli`
+
+### Single File Components
+
+### Funcionalidades, UI y comandos básicos
+
+- `vue ui` crea una interfaz gráfica para manejar el proyecto desde el navegador.
+- `npm i -g serve` & `serve -s build` nos permite crear un servidor para ver nuestro proyecto en producción.
